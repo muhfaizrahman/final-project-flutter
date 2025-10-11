@@ -10,14 +10,14 @@ class FavoritesPage extends StatelessWidget {
       id: 1,
       title: 'Movie 1',
       overview: 'Overview for Movie 1',
-      posterPath: 'assets/images/placeholder.webp',
+      posterPath: 'assets/images/inception.jpg',
       ratingAverage: 8.1,
     ),
     Movie(
       id: 2,
       title: 'Movie 2',
       overview: "Overview for Movie 2",
-      posterPath: "assets/images/placeholder.webp",
+      posterPath: "assets/images/interstellar.jpg",
       ratingAverage: 7.5,
     ),
   ];
