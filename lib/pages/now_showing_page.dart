@@ -12,6 +12,7 @@ class NowShowingPage extends StatelessWidget {
       overview: 'Overview for Movie 1',
       posterPath: 'assets/images/interstellar.jpg',
       ratingAverage: 8.1,
+      genres: ['Sci-fi', 'Action'],
     ),
     Movie(
       id: 2,
@@ -19,13 +20,15 @@ class NowShowingPage extends StatelessWidget {
       overview: "Overview for Movie 2",
       posterPath: "assets/images/shawshank.jpg",
       ratingAverage: 7.5,
+      genres: ['Horror', 'Thriller'],
     ),
     Movie(
       id: 3,
       title: 'Movie 3',
       overview: "Overview for Movie 3",
       posterPath: "assets/images/dark_knight.jpg",
-      ratingAverage: 8.0
+      ratingAverage: 8.0,
+      genres: ['Action', 'Faction'],
     ),
   ];
 
@@ -34,7 +37,7 @@ class NowShowingPage extends StatelessWidget {
     return Scaffold(
       body: ListView.builder(
         itemCount: dummyMovies.length,
-        itemBuilder: (context, index){
+        itemBuilder: (context, index) {
           final movie = dummyMovies[index];
           return MovieListItem(movie: movie);
         },

@@ -74,7 +74,7 @@ class _MovieListItemState extends State<MovieListItem> {
               ),
             ),
             const SizedBox(width: 16),
-            Expanded(
+             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -87,11 +87,31 @@ class _MovieListItemState extends State<MovieListItem> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+
                   const SizedBox(height: 8),
-                  Text(
-                    'Rating: ${widget.movie.ratingAverage}',
-                    style: const TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
+
+                  if (widget.movie.genres != null &&
+                      widget.movie.genres!.isNotEmpty)
+                    Text(
+                      widget.movie.genres!.join(', '),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.blueGrey,
+                      ),
+                    ),
+
+                  const SizedBox(height: 8),
+
+                  if (widget.movie.ratingAverage != null)
+                    Text(
+                      'Rating: ${widget.movie.ratingAverage!.toStringAsFixed(1)}',
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    )
+                  else if (widget.movie.releaseDate != null)
+                    Text(
+                      'Coming on: ${widget.movie.releaseDate}',
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    ),
                 ],
               ),
             ),

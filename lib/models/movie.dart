@@ -6,7 +6,9 @@ class Movie {
   final String title;
   final String overview;
   final String posterPath;
-  final double ratingAverage;
+  final double? ratingAverage;
+  final String? releaseDate;
+  final List<String>? genres;
   final bool isFavorite;
 
   const Movie({
@@ -14,7 +16,9 @@ class Movie {
     required this.title,
     required this.overview,
     required this.posterPath,
-    required this.ratingAverage,
+    this.ratingAverage,
+    this.releaseDate,
+    this.genres,
     this.isFavorite = false,
   });
 
@@ -24,6 +28,8 @@ class Movie {
     String? overview,
     String? posterPath,
     double? ratingAverage,
+    String? releaseDate,
+    List<String>? genres,
     bool? isFavorite,
   }) {
     return Movie(
@@ -32,6 +38,8 @@ class Movie {
       overview: overview ?? this.overview,
       posterPath: posterPath ?? this.posterPath,
       ratingAverage: ratingAverage ?? this.ratingAverage,
+      releaseDate: releaseDate ?? this.releaseDate,
+      genres: genres ?? this.genres,
       isFavorite: isFavorite ?? this.isFavorite,
     );
   }
