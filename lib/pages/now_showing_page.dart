@@ -1,4 +1,3 @@
-import 'package:final_project/pages/movie_detail_page.dart';
 import 'package:flutter/material.dart';
 import '../widgets/movie_card.dart';
 import '../models/movie.dart';
