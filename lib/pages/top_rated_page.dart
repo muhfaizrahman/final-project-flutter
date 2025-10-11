@@ -12,6 +12,8 @@ class TopRatedPage extends StatelessWidget {
       overview: 'A team of explorers travels through a wormhole in space to ensure humanity\'s survival. Directed by Christopher Nolan.',
       posterPath: 'assets/images/interstellar.jpg',
       ratingAverage: 8.5,
+      genres: ['Drama', 'Romance'],
+
     ),
     Movie(
       id: 2,
@@ -19,6 +21,7 @@ class TopRatedPage extends StatelessWidget {
       overview: 'A thief enters the dreams of others to steal secrets and plant ideas, blurring the line between reality and illusion.',
       posterPath: 'assets/images/inception.jpg',
       ratingAverage: 7.5,
+      genres: ['Animation', 'Comedy', 'Family'],
     ),
     Movie(
       id: 3,
@@ -26,6 +29,7 @@ class TopRatedPage extends StatelessWidget {
       overview: 'Batman faces chaos unleashed by the Joker in Gotham City, testing his morality and heroism to the limit.',
       posterPath: 'assets/images/dark_knight.jpg',
       ratingAverage: 8.8,
+      genres: ['Action', 'Faction'],
     ),
     Movie(
       id: 4,
@@ -33,6 +37,7 @@ class TopRatedPage extends StatelessWidget {
       overview: 'Imprisoned banker Andy Dufresne finds hope and friendship in Shawshank Prison through perseverance and faith.',
       posterPath: 'assets/images/shawshank.jpg',
       ratingAverage: 9.3,
+      genres: ['Drama', 'Crime'],
     ),
   ];
 

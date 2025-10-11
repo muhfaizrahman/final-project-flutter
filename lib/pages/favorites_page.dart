@@ -12,6 +12,8 @@ class FavoritesPage extends StatelessWidget {
       overview: 'Overview for Movie 1',
       posterPath: 'assets/images/inception.jpg',
       ratingAverage: 8.1,
+      genres: ['Drama', 'Romance'],
+
     ),
     Movie(
       id: 2,
@@ -19,6 +21,7 @@ class FavoritesPage extends StatelessWidget {
       overview: "Overview for Movie 2",
       posterPath: "assets/images/interstellar.jpg",
       ratingAverage: 7.5,
+      genres: ['Animation', 'Comedy', 'Family'],
     ),
   ];
 
