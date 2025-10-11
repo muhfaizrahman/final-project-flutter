@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart';
-import 'register_page.dart';
-import 'tabs_page.dart';
-import 'edit_profile_page.dart';
-import 'now_showing_page.dart';
+import 'pages/auth/login_page.dart';
+import 'pages/auth/register_page.dart';
+import 'pages/tabs_page.dart';
+import 'pages/edit_profile_page.dart';
 
 void main() {
   runApp(const MovieApp());
