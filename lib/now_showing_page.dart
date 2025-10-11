@@ -1,25 +1,6 @@
-import 'package:equatable/equatable.dart';
 import 'package:final_project/movie_detail_page.dart';
 import 'package:flutter/material.dart';
-
-class Movie extends Equatable {
-  final int id;
-  final String title;
-  final String overview;
-  final String posterPath;
-  final double ratingAverage;
-
-  const Movie({
-   required this.id,
-   required this.title,
-   required this.overview,
-   required this.posterPath,
-   required this.ratingAverage,
-  });
-
-  @override
-  List<Object?> get props => [id, title, overview, posterPath, ratingAverage];
-}
+import 'movie_model.dart';
 
 class NowShowingPage extends StatelessWidget {
   const NowShowingPage({super.key});
@@ -31,6 +12,7 @@ class NowShowingPage extends StatelessWidget {
       overview: 'Overview for Movie 1',
       posterPath: 'assets/images/placeholder.webp',
       ratingAverage: 8.1,
+      genres: ['Action', 'Adventure'],
     ),
     Movie(
       id: 2,
@@ -38,13 +20,15 @@ class NowShowingPage extends StatelessWidget {
       overview: "Overview for Movie 2",
       posterPath: "assets/images/placeholder.webp",
       ratingAverage: 7.5,
+      genres: ['Drama'],
     ),
     Movie(
       id: 3,
       title: 'Movie 3',
       overview: "Overview for Movie 3",
       posterPath: "assets/images/placeholder.webp",
-      ratingAverage: 8.0
+      ratingAverage: 8.0,
+      genres: ['Sci-Fi', 'Thriller'],
     ),
   ];
 
@@ -52,13 +36,13 @@ class NowShowingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Now Shwoing"),
+        title: const Text("Now Showing"),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
       ),
       body: ListView.builder(
         itemCount: dummyMovies.length,
-        itemBuilder: (context, index){
+        itemBuilder: (context, index) {
           final movie = dummyMovies[index];
           return _MovieListItem(movie: movie);
         },
@@ -78,9 +62,7 @@ class _MovieListItem extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MovieDetailPage(
-              movie: movie,
-            ),
+            builder: (context) => MovieDetailPage(movie: movie),
           ),
         );
       },
@@ -98,7 +80,10 @@ class _MovieListItem extends StatelessWidget {
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return const SizedBox(
-                      width: 100, height: 150, child: Icon(Icons.error));
+                    width: 100,
+                    height: 150,
+                    child: Icon(Icons.error),
+                  );
                 },
               ),
             ),
@@ -110,7 +95,9 @@ class _MovieListItem extends StatelessWidget {
                   Text(
                     movie.title,
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -119,6 +106,18 @@ class _MovieListItem extends StatelessWidget {
                     'Rating: ${movie.ratingAverage}',
                     style: const TextStyle(fontSize: 14, color: Colors.grey),
                   ),
+                  if (movie.genres != null && movie.genres!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6.0),
+                      child: Text(
+                        'Genre: ${movie.genres!.join(', ')}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'now_showing_page.dart';
+import 'movie_model.dart';
 
 class MovieDetailPage extends StatelessWidget {
   final Movie movie;
