@@ -3,6 +3,7 @@ import 'login_page.dart';
 import 'register_page.dart';
 import 'tabs_page.dart';
 import 'edit_profile_page.dart';
+import 'now_showing_page.dart';
 
 void main() {
   runApp(const MovieApp());
