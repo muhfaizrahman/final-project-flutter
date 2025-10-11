@@ -1,14 +1,34 @@
-import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
+// import 'package:equatable/equatable.dart';
+//
+// class Movie extends Equatable {
+//   final int id;
+//   final String title;
+//   final String overview;
+//   final String posterPath;
+//   final double ratingAverage;
+//
+//   const Movie({
+//     required this.id,
+//     required this.title,
+//     required this.overview,
+//     required this.posterPath,
+//     required this.ratingAverage,
+//   });
+//
+//   @override
+//   List<Object?> get props => [id, title, overview, posterPath, ratingAverage];
+// }
 
-import '../pages/movie_detail_page.dart';
+import 'package:flutter/foundation.dart';
 
-class Movie extends Equatable {
+@immutable
+class Movie {
   final int id;
   final String title;
   final String overview;
   final String posterPath;
   final double ratingAverage;
+  final bool isFavorite;
 
   const Movie({
     required this.id,
@@ -16,8 +36,24 @@ class Movie extends Equatable {
     required this.overview,
     required this.posterPath,
     required this.ratingAverage,
+    this.isFavorite = false,
   });
 
-  @override
-  List<Object?> get props => [id, title, overview, posterPath, ratingAverage];
+  Movie copyWith({
+    int? id,
+    String? title,
+    String? overview,
+    String? posterPath,
+    double? ratingAverage,
+    bool? isFavorite,
+  }) {
+    return Movie(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      overview: overview ?? this.overview,
+      posterPath: posterPath ?? this.posterPath,
+      ratingAverage: ratingAverage ?? this.ratingAverage,
+      isFavorite: isFavorite ?? this.isFavorite,
+    );
+  }
 }

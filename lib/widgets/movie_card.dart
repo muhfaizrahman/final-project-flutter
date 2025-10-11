@@ -2,23 +2,56 @@ import 'package:flutter/material.dart';
 import '../models/movie.dart';
 import '../pages/movie_detail_page.dart';
 
-class MovieListItem extends StatelessWidget {
+class MovieListItem extends StatefulWidget {
   final Movie movie;
-  const MovieListItem({required this.movie});
+  final VoidCallback? onTap;
+  // Emits the new favorite value so parents can update state (e.g., Favorites page)
+  final ValueChanged<bool>? onFavoriteChanged;
+
+  const MovieListItem({
+    super.key,
+    required this.movie,
+    this.onTap,
+    this.onFavoriteChanged,
+  });
+
+  @override
+  State<MovieListItem> createState() => _MovieListItemState();
+}
+
+class _MovieListItemState extends State<MovieListItem> {
+  late bool _isFavorite;
+
+  @override
+  void initState() {
+    super.initState();
+    _isFavorite = widget.movie.isFavorite;
+  }
+
+  void _toggleFavorite() {
+    setState(() {
+      _isFavorite = !_isFavorite;
+    });
+    widget.onFavoriteChanged?.call(_isFavorite);
+  }
+
+  void _goDetail() {
+    if (widget.onTap != null) {
+      widget.onTap!.call();
+      return;
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MovieDetailPage(movie: widget.movie),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MovieDetailPage(
-              movie: movie,
-            ),
-          ),
-        );
-      },
+      onTap: _goDetail,
       child: Container(
         padding: const EdgeInsets.all(12.0),
         child: Row(
@@ -27,13 +60,16 @@ class MovieListItem extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
               child: Image.asset(
-                movie.posterPath,
+                widget.movie.posterPath,
                 width: 100,
                 height: 150,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return const SizedBox(
-                      width: 100, height: 150, child: Icon(Icons.error));
+                    width: 100,
+                    height: 150,
+                    child: Icon(Icons.error),
+                  );
                 },
               ),
             ),
@@ -43,18 +79,28 @@ class MovieListItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    movie.title,
+                    widget.movie.title,
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Rating: ${movie.ratingAverage}',
+                    'Rating: ${widget.movie.ratingAverage}',
                     style: const TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                 ],
+              ),
+            ),
+            IconButton(
+              tooltip: _isFavorite ? 'Remove from Favorites' : 'Add to Favorites',
+              onPressed: _toggleFavorite,
+              icon: Icon(
+                _isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: _isFavorite ? Colors.red : null,
               ),
             ),
           ],
