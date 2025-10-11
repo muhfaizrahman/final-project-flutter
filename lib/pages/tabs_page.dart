@@ -42,11 +42,19 @@ class _TabsPageState extends State<TabsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_titles[_index]),
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
         actions: [
           TextButton.icon(
             onPressed: _signOut,
-            icon: const Icon(Icons.logout, size: 18),
-            label: const Text('Sign out'),
+            icon: const Icon(
+              Icons.logout,
+              size: 18,
+              color: Colors.red,
+            ),
+            label: const Text(
+                'Sign out',
+                style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
