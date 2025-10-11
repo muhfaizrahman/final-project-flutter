@@ -1,16 +1,10 @@
 # final_project
 
 Final project mata kuliah pengembangan aplikasi multiplatform
+Aplikasi yang dibangun adalah Movie Catalog App
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Anggota Kelompok:
+1. Muhammad Alfi Tsani Ramadhan - 235150401111049
+2. Azmi Al Ghifari Rahman - 235150407111058
+3. Sandya Freda - 235150401111042
+4. Muhammad Faiz Rahman - 245150400111003
