@@ -25,7 +25,7 @@ class _TabsPageState extends State<TabsPage> {
 
   final _titles = const [
     'Now Showing',
-    'Upcoming',
+    'Upcoming Movies',
     'Top Rated',
     'Favorites',
     'Edit Profile'
@@ -65,7 +65,7 @@ class _TabsPageState extends State<TabsPage> {
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.movie), label: 'Now Showing'),
-          BottomNavigationBarItem(icon: Icon(Icons.update), label: 'Upcoming'),
+          BottomNavigationBarItem(icon: Icon(Icons.update), label: 'Upcoming Movies'),
           BottomNavigationBarItem(icon: Icon(Icons.star), label: 'Top Rated'),
           BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorites'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Edit Profile'),
