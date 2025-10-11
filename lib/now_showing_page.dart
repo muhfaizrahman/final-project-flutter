@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:final_project/movie_detail_page.dart';
 import 'package:flutter/material.dart';
 
 class Movie extends Equatable {
@@ -72,43 +73,57 @@ class _MovieListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12.0),
-      child: Row (
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            child: Image.asset(
-              movie.posterPath,
-              width: 100,
-              height: 150,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace){
-                return const SizedBox(width: 100, height: 150, child: Icon(Icons.error));
-              },
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MovieDetailPage(
+              movie: movie,
             ),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text (
-                  movie.title,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Rating: ${movie.ratingAverage}',
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Image.asset(
+                movie.posterPath,
+                width: 100,
+                height: 150,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return const SizedBox(
+                      width: 100, height: 150, child: Icon(Icons.error));
+                },
+              ),
             ),
-          )
-        ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    movie.title,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Rating: ${movie.ratingAverage}',
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
