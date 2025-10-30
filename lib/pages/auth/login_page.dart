@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,6 +13,7 @@ class _LoginPageState extends State<LoginPage> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   bool _obscure = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -31,9 +33,52 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-    if (!mounted) return;
-    Navigator.pushReplacementNamed(context, '/home');
+    setState(() {
+      _isLoading = true;
+    });
+
+    // if (!_formKey.currentState!.validate()) return;
+
+    try {
+      final AuthResponse res = await Supabase.instance.client.auth.signInWithPassword(
+          email: _emailCtrl.text.trim(),
+          password: _passwordCtrl.text.trim()
+      );
+      if (mounted) {
+        if (res.user != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text('Login berhasil! Selamat datang, ${res.user!.email}')
+              )
+          );
+          Navigator.pushReplacementNamed(context, '/home');
+        }
+      }
+    } on AuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error saat login: ${e.message}'),
+              backgroundColor: Colors.red,
+            )
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Terjadi kesalahan tak terduga: $e'),
+              backgroundColor: Colors.red,
+            )
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -78,7 +123,9 @@ class _LoginPageState extends State<LoginPage> {
                     validator: _validatePassword,
                   ),
                   const SizedBox(height: 20),
-                  FilledButton(
+                  _isLoading
+                      ? const CircularProgressIndicator()
+                      : FilledButton(
                     onPressed: _submit,
                     style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                     child: const Text('Login'),

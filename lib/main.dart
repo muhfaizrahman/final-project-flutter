@@ -3,8 +3,16 @@ import 'pages/auth/login_page.dart';
 import 'pages/auth/register_page.dart';
 import 'pages/tabs_page.dart';
 import 'pages/edit_profile_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+      url: 'https://uayepjabsvmjvkjybnbz.supabase.co',
+      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVheWVwamFic3ZtanZranlibmJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4MDI3NDAsImV4cCI6MjA3NzM3ODc0MH0.vELug8EfuvKsTRqzRVUoCW-M0khvUAg5carMJn0gyTA'
+  );
+
   runApp(const MovieApp());
 }
 

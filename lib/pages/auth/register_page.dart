@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -15,6 +16,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _confirmCtrl = TextEditingController();
   bool _obscure = true;
   bool _obscureConfirm = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -45,12 +47,57 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Account Created (local only)'))
-    );
-    Navigator.pushReplacementNamed(context, '/login');
+    setState(() {
+      _isLoading = true;
+    });
+    
+    try {
+      final AuthResponse res = await Supabase.instance.client.auth.signUp(
+          email: _emailCtrl.text.trim(),
+          password: _passwordCtrl.text.trim()
+      );
+      if (mounted) {
+        if (res.user != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('Pendaftaran berhasil! Silakan cek email Anda untuk verifikasi.')
+            )
+          );
+          Navigator.pushReplacementNamed(context, '/login');
+        }
+      } else if (res.session == null && res.user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Email konfirmasi telah dikirim. Harap verifikasi akun Anda.')
+          )
+        );
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    } on AuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error saat pendaftaran: ${e.message}'),
+              backgroundColor: Colors.red,
+            )
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Terjadi kesalahan tak terduga: $e'),
+              backgroundColor: Colors.red,
+            )
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -121,11 +168,13 @@ class _RegisterPageState extends State<RegisterPage> {
                     validator: _validateConfirm,
                   ),
                   const SizedBox(height: 20),
-                  FilledButton(
-                    onPressed: _submit,
-                    style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                    child: const Text('Create account'),
-                  ),
+                  _isLoading
+                      ? const CircularProgressIndicator()
+                      : FilledButton(
+                        onPressed: _submit,
+                        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                        child: const Text('Register'),
+                      ),
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
