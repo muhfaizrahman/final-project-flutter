@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'now_showing_page.dart';
 import 'upcoming_page.dart';
 import 'top_rated_page.dart';
@@ -33,8 +34,34 @@ class _TabsPageState extends State<TabsPage> {
 
   void _onTap(int i) => setState(() => _index = i);
 
-  void _signOut() {
-    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+  Future<void> _signOut() async {
+    try {
+      await Supabase.instance.client.auth.signOut();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Logout berhasil.')),
+        );
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    } on AuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error saat logout: ${e.message}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Terjadi kesalahan tak terduga: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
