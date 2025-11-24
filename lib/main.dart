@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'pages/auth/login_page.dart';
 import 'pages/auth/register_page.dart';
 import 'pages/tabs_page.dart';
 import 'pages/edit_profile_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'presentation/providers/favorite_provider.dart';
+import 'presentation/providers/movie_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,20 +24,26 @@ class MovieApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Catalog Movie App',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => MovieProvider()),
+        ChangeNotifierProvider(create: (_) => FavoriteProvider()),
+      ],
+      child: MaterialApp(
+        title: 'Catalog Movie App',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+        ),
+        initialRoute: '/login',
+        routes: {
+          '/login': (_) => const LoginPage(),
+          '/register': (_) => const RegisterPage(),
+          '/home': (_) => const TabsPage(),
+          '/edit-profile': (_) => const EditProfilePage(),
+        },
       ),
-      initialRoute: '/login',
-      routes: {
-        '/login': (_) => const LoginPage(),
-        '/register': (_) => const RegisterPage(),
-        '/home': (_) => const TabsPage(),
-        '/edit-profile': (_) => const EditProfilePage(),
-      },
     );
   }
 }

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'now_showing_page.dart';
 import 'upcoming_page.dart';
 import 'top_rated_page.dart';
 import 'favorites_page.dart';
 import 'edit_profile_page.dart';
+import '../presentation/providers/favorite_provider.dart';
+import '../presentation/providers/movie_provider.dart';
 
 class TabsPage extends StatefulWidget {
   const TabsPage({super.key});
@@ -32,10 +35,30 @@ class _TabsPageState extends State<TabsPage> {
     'Edit Profile'
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    // Initialize favorites and movies when user logs in
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final favoriteProvider = Provider.of<FavoriteProvider>(context, listen: false);
+      final movieProvider = Provider.of<MovieProvider>(context, listen: false);
+      
+      favoriteProvider.initialize();
+      movieProvider.initialize();
+    });
+  }
+
   void _onTap(int i) => setState(() => _index = i);
 
   Future<void> _signOut() async {
     try {
+      // Clear favorites and movies before signing out
+      final favoriteProvider = Provider.of<FavoriteProvider>(context, listen: false);
+      final movieProvider = Provider.of<MovieProvider>(context, listen: false);
+      
+      favoriteProvider.clear();
+      movieProvider.clear();
+      
       await Supabase.instance.client.auth.signOut();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

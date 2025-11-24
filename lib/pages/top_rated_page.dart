@@ -1,56 +1,78 @@
-import 'package:final_project/models/movie.dart';
 import 'package:final_project/widgets/movie_card.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../presentation/providers/movie_provider.dart';
 
-class TopRatedPage extends StatelessWidget {
+class TopRatedPage extends StatefulWidget {
   const TopRatedPage({super.key});
 
-  final List<Movie> dummyTopRatedMovies = const [
-    Movie(
-      id: 1,
-      title: 'Interstellar',
-      overview: 'A team of explorers travels through a wormhole in space to ensure humanity\'s survival. Directed by Christopher Nolan.',
-      posterPath: 'assets/images/interstellar.jpg',
-      ratingAverage: 8.5,
-      genres: ['Drama', 'Romance'],
+  @override
+  State<TopRatedPage> createState() => _TopRatedPageState();
+}
 
-    ),
-    Movie(
-      id: 2,
-      title: 'Inception',
-      overview: 'A thief enters the dreams of others to steal secrets and plant ideas, blurring the line between reality and illusion.',
-      posterPath: 'assets/images/inception.jpg',
-      ratingAverage: 7.5,
-      genres: ['Animation', 'Comedy', 'Family'],
-    ),
-    Movie(
-      id: 3,
-      title: 'The Dark Knight',
-      overview: 'Batman faces chaos unleashed by the Joker in Gotham City, testing his morality and heroism to the limit.',
-      posterPath: 'assets/images/dark_knight.jpg',
-      ratingAverage: 8.8,
-      genres: ['Action', 'Faction'],
-    ),
-    Movie(
-      id: 4,
-      title: 'The Shawshank Redemption',
-      overview: 'Imprisoned banker Andy Dufresne finds hope and friendship in Shawshank Prison through perseverance and faith.',
-      posterPath: 'assets/images/shawshank.jpg',
-      ratingAverage: 9.3,
-      genres: ['Drama', 'Crime'],
-    ),
-  ];
+class _TopRatedPageState extends State<TopRatedPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final movieProvider = Provider.of<MovieProvider>(context, listen: false);
+      if (movieProvider.topRatedMovies.isEmpty) {
+        movieProvider.loadMoviesByCategory('top_rated');
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ListView.builder(
-        itemCount: dummyTopRatedMovies.length,
-        itemBuilder: (context, index) {
-          final movie = dummyTopRatedMovies[index];
-          return MovieListItem(movie: movie);
-        },
-      ),
+    return Consumer<MovieProvider>(
+      builder: (context, movieProvider, child) {
+        if (movieProvider.isLoading && movieProvider.topRatedMovies.isEmpty) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (movieProvider.error != null && movieProvider.topRatedMovies.isEmpty) {
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Error: ${movieProvider.error}',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => movieProvider.loadMoviesByCategory('top_rated'),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (movieProvider.topRatedMovies.isEmpty) {
+          return const Scaffold(
+            body: Center(
+              child: Text('No movies available'),
+            ),
+          );
+        }
+
+        return Scaffold(
+          body: ListView.builder(
+            itemCount: movieProvider.topRatedMovies.length,
+            itemBuilder: (context, index) {
+              final movie = movieProvider.topRatedMovies[index];
+              return MovieListItem(movie: movie);
+            },
+          ),
+        );
+      },
     );
   }
 }
