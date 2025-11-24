@@ -6,8 +6,8 @@ import 'upcoming_page.dart';
 import 'top_rated_page.dart';
 import 'favorites_page.dart';
 import 'edit_profile_page.dart';
-import '../presentation/providers/favorite_provider.dart';
-import '../presentation/providers/movie_provider.dart';
+import '../providers/favorite_provider.dart';
+import '../providers/movie_provider.dart';
 
 class TabsPage extends StatefulWidget {
   const TabsPage({super.key});

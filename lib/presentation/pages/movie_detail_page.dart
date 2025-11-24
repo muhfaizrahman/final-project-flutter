@@ -1,10 +1,10 @@
-import '../models/movie.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../presentation/providers/favorite_provider.dart';
+import '../../domain/entities/movie_entity.dart';
+import '../providers/favorite_provider.dart';
 
 class MovieDetailPage extends StatelessWidget {
-  final Movie movie;
+  final MovieEntity movie;
 
   const MovieDetailPage({super.key, required this.movie});
 

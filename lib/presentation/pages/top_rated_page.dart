@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/movie_card.dart';
-import '../presentation/providers/movie_provider.dart';
+import '../providers/movie_provider.dart';
 
-class NowShowingPage extends StatefulWidget {
-  const NowShowingPage({super.key});
+class TopRatedPage extends StatefulWidget {
+  const TopRatedPage({super.key});
 
   @override
-  State<NowShowingPage> createState() => _NowShowingPageState();
+  State<TopRatedPage> createState() => _TopRatedPageState();
 }
 
-class _NowShowingPageState extends State<NowShowingPage> {
+class _TopRatedPageState extends State<TopRatedPage> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final movieProvider = Provider.of<MovieProvider>(context, listen: false);
-      if (movieProvider.nowShowingMovies.isEmpty) {
-        movieProvider.loadMoviesByCategory('now_showing');
+      if (movieProvider.topRatedMovies.isEmpty) {
+        movieProvider.loadMoviesByCategory('top_rated');
       }
     });
   }
@@ -26,7 +26,7 @@ class _NowShowingPageState extends State<NowShowingPage> {
   Widget build(BuildContext context) {
     return Consumer<MovieProvider>(
       builder: (context, movieProvider, child) {
-        if (movieProvider.isLoading && movieProvider.nowShowingMovies.isEmpty) {
+        if (movieProvider.isLoading && movieProvider.topRatedMovies.isEmpty) {
           return const Scaffold(
             body: Center(
               child: CircularProgressIndicator(),
@@ -34,7 +34,7 @@ class _NowShowingPageState extends State<NowShowingPage> {
           );
         }
 
-        if (movieProvider.error != null && movieProvider.nowShowingMovies.isEmpty) {
+        if (movieProvider.error != null && movieProvider.topRatedMovies.isEmpty) {
           return Scaffold(
             body: Center(
               child: Column(
@@ -46,7 +46,7 @@ class _NowShowingPageState extends State<NowShowingPage> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () => movieProvider.loadMoviesByCategory('now_showing'),
+                    onPressed: () => movieProvider.loadMoviesByCategory('top_rated'),
                     child: const Text('Retry'),
                   ),
                 ],
@@ -55,7 +55,7 @@ class _NowShowingPageState extends State<NowShowingPage> {
           );
         }
 
-        if (movieProvider.nowShowingMovies.isEmpty) {
+        if (movieProvider.topRatedMovies.isEmpty) {
           return const Scaffold(
             body: Center(
               child: Text('No movies available'),
@@ -65,9 +65,9 @@ class _NowShowingPageState extends State<NowShowingPage> {
 
         return Scaffold(
           body: ListView.builder(
-            itemCount: movieProvider.nowShowingMovies.length,
+            itemCount: movieProvider.topRatedMovies.length,
             itemBuilder: (context, index) {
-              final movie = movieProvider.nowShowingMovies[index];
+              final movie = movieProvider.topRatedMovies[index];
               return MovieListItem(movie: movie);
             },
           ),

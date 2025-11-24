@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'pages/auth/login_page.dart';
-import 'pages/auth/register_page.dart';
-import 'pages/tabs_page.dart';
-import 'pages/edit_profile_page.dart';
+import 'presentation/pages/auth/login_page.dart';
+import 'presentation/pages/auth/register_page.dart';
+import 'presentation/pages/tabs_page.dart';
+import 'presentation/pages/edit_profile_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'presentation/providers/favorite_provider.dart';
-import 'presentation/providers/movie_provider.dart';
+import 'injection_container.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,8 +25,8 @@ class MovieApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => MovieProvider()),
-        ChangeNotifierProvider(create: (_) => FavoriteProvider()),
+        ChangeNotifierProvider(create: (_) => InjectionContainer.movieProvider),
+        ChangeNotifierProvider(create: (_) => InjectionContainer.favoriteProvider),
       ],
       child: MaterialApp(
         title: 'Catalog Movie App',

@@ -1,36 +1,39 @@
-import '../../models/movie.dart';
+import '../../domain/entities/movie_entity.dart';
+import '../../domain/repositories/movie_repository.dart' as domain;
 import '../datasources/movie_remote_datasource.dart';
+import '../models/movie_model.dart';
 
-/// Repository to manage movie data from Supabase
-class MovieRepository {
+/// Repository implementation for movie operations
+/// Implements the domain repository interface
+class MovieRepository implements domain.MovieRepository {
   final MovieRemoteDataSource _remoteDataSource;
 
   MovieRepository(this._remoteDataSource);
 
-  /// Get all available movies from all categories
-  Future<List<Movie>> getAllMovies() async {
+  @override
+  Future<List<MovieEntity>> getAllMovies() async {
     final data = await _remoteDataSource.getAllMovies();
-    return MovieRemoteDataSource.mapToMovies(data);
+    return MovieModel.fromJsonList(data).map((model) => model.toEntity()).toList();
   }
 
-  /// Get movies by category
-  Future<List<Movie>> getMoviesByCategory(String category) async {
+  @override
+  Future<List<MovieEntity>> getMoviesByCategory(String category) async {
     final data = await _remoteDataSource.getMoviesByCategory(category);
-    return MovieRemoteDataSource.mapToMovies(data);
+    return MovieModel.fromJsonList(data).map((model) => model.toEntity()).toList();
   }
 
-  /// Get a movie by ID
-  Future<Movie?> getMovieById(int id) async {
+  @override
+  Future<MovieEntity?> getMovieById(int id) async {
     final data = await _remoteDataSource.getMovieById(id);
     if (data == null) return null;
-    return MovieRemoteDataSource.mapToMovie(data);
+    return MovieModel.fromJson(data).toEntity();
   }
 
-  /// Get movies by IDs
-  Future<List<Movie>> getMoviesByIds(List<int> ids) async {
+  @override
+  Future<List<MovieEntity>> getMoviesByIds(List<int> ids) async {
     if (ids.isEmpty) return [];
     final data = await _remoteDataSource.getMoviesByIds(ids);
-    return MovieRemoteDataSource.mapToMovies(data);
+    return MovieModel.fromJsonList(data).map((model) => model.toEntity()).toList();
   }
 }
 

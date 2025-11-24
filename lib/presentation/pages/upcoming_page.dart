@@ -1,23 +1,23 @@
-import 'package:final_project/widgets/movie_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../presentation/providers/movie_provider.dart';
+import '../widgets/movie_card.dart';
+import '../providers/movie_provider.dart';
 
-class TopRatedPage extends StatefulWidget {
-  const TopRatedPage({super.key});
+class UpcomingPage extends StatefulWidget {
+  const UpcomingPage({super.key});
 
   @override
-  State<TopRatedPage> createState() => _TopRatedPageState();
+  State<UpcomingPage> createState() => _UpcomingPageState();
 }
 
-class _TopRatedPageState extends State<TopRatedPage> {
+class _UpcomingPageState extends State<UpcomingPage> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final movieProvider = Provider.of<MovieProvider>(context, listen: false);
-      if (movieProvider.topRatedMovies.isEmpty) {
-        movieProvider.loadMoviesByCategory('top_rated');
+      if (movieProvider.upcomingMovies.isEmpty) {
+        movieProvider.loadMoviesByCategory('upcoming');
       }
     });
   }
@@ -26,7 +26,7 @@ class _TopRatedPageState extends State<TopRatedPage> {
   Widget build(BuildContext context) {
     return Consumer<MovieProvider>(
       builder: (context, movieProvider, child) {
-        if (movieProvider.isLoading && movieProvider.topRatedMovies.isEmpty) {
+        if (movieProvider.isLoading && movieProvider.upcomingMovies.isEmpty) {
           return const Scaffold(
             body: Center(
               child: CircularProgressIndicator(),
@@ -34,7 +34,7 @@ class _TopRatedPageState extends State<TopRatedPage> {
           );
         }
 
-        if (movieProvider.error != null && movieProvider.topRatedMovies.isEmpty) {
+        if (movieProvider.error != null && movieProvider.upcomingMovies.isEmpty) {
           return Scaffold(
             body: Center(
               child: Column(
@@ -46,7 +46,7 @@ class _TopRatedPageState extends State<TopRatedPage> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () => movieProvider.loadMoviesByCategory('top_rated'),
+                    onPressed: () => movieProvider.loadMoviesByCategory('upcoming'),
                     child: const Text('Retry'),
                   ),
                 ],
@@ -55,7 +55,7 @@ class _TopRatedPageState extends State<TopRatedPage> {
           );
         }
 
-        if (movieProvider.topRatedMovies.isEmpty) {
+        if (movieProvider.upcomingMovies.isEmpty) {
           return const Scaffold(
             body: Center(
               child: Text('No movies available'),
@@ -65,9 +65,9 @@ class _TopRatedPageState extends State<TopRatedPage> {
 
         return Scaffold(
           body: ListView.builder(
-            itemCount: movieProvider.topRatedMovies.length,
+            itemCount: movieProvider.upcomingMovies.length,
             itemBuilder: (context, index) {
-              final movie = movieProvider.topRatedMovies[index];
+              final movie = movieProvider.upcomingMovies[index];
               return MovieListItem(movie: movie);
             },
           ),

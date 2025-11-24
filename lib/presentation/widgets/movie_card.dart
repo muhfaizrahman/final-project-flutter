@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/movie.dart';
+import '../../domain/entities/movie_entity.dart';
 import '../pages/movie_detail_page.dart';
-import '../presentation/providers/favorite_provider.dart';
+import '../providers/favorite_provider.dart';
 
 class MovieListItem extends StatefulWidget {
-  final Movie movie;
+  final MovieEntity movie;
   final VoidCallback? onTap;
   // Emits the new favorite value so parents can update state (e.g., Favorites page)
   final ValueChanged<bool>? onFavoriteChanged;

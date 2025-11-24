@@ -1,29 +1,40 @@
 import 'package:flutter/foundation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../data/datasources/movie_remote_datasource.dart';
-import '../../data/repositories/movie_repository.dart';
-import '../../models/movie.dart';
+import '../../domain/entities/movie_entity.dart';
+import '../../domain/usecases/get_all_movies.dart';
+import '../../domain/usecases/get_movies_by_category.dart';
+import '../../domain/usecases/get_movie_by_id.dart';
+import '../../domain/usecases/get_movies_by_ids.dart';
 
+/// Presentation Layer Provider for Movies
+/// Uses Use Cases from Domain Layer
 class MovieProvider with ChangeNotifier {
-  final MovieRepository _repository;
+  final GetAllMovies _getAllMovies;
+  final GetMoviesByCategory _getMoviesByCategory;
+  final GetMovieById _getMovieById;
+  final GetMoviesByIds _getMoviesByIds;
   
-  List<Movie> _nowShowingMovies = [];
-  List<Movie> _upcomingMovies = [];
-  List<Movie> _topRatedMovies = [];
-  List<Movie> _allMovies = [];
+  List<MovieEntity> _nowShowingMovies = [];
+  List<MovieEntity> _upcomingMovies = [];
+  List<MovieEntity> _topRatedMovies = [];
+  List<MovieEntity> _allMovies = [];
   
   bool _isLoading = false;
   String? _error;
 
-  MovieProvider()
-      : _repository = MovieRepository(
-          MovieRemoteDataSource(Supabase.instance.client),
-        );
+  MovieProvider({
+    required GetAllMovies getAllMovies,
+    required GetMoviesByCategory getMoviesByCategory,
+    required GetMovieById getMovieById,
+    required GetMoviesByIds getMoviesByIds,
+  })  : _getAllMovies = getAllMovies,
+        _getMoviesByCategory = getMoviesByCategory,
+        _getMovieById = getMovieById,
+        _getMoviesByIds = getMoviesByIds;
 
-  List<Movie> get nowShowingMovies => _nowShowingMovies;
-  List<Movie> get upcomingMovies => _upcomingMovies;
-  List<Movie> get topRatedMovies => _topRatedMovies;
-  List<Movie> get allMovies => _allMovies;
+  List<MovieEntity> get nowShowingMovies => _nowShowingMovies;
+  List<MovieEntity> get upcomingMovies => _upcomingMovies;
+  List<MovieEntity> get topRatedMovies => _topRatedMovies;
+  List<MovieEntity> get allMovies => _allMovies;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
@@ -34,7 +45,7 @@ class MovieProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      _allMovies = await _repository.getAllMovies();
+      _allMovies = await _getAllMovies();
       _error = null;
     } catch (e) {
       _error = e.toString();
@@ -52,7 +63,7 @@ class MovieProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final movies = await _repository.getMoviesByCategory(category);
+      final movies = await _getMoviesByCategory(category);
       
       switch (category) {
         case 'now_showing':
@@ -108,9 +119,9 @@ class MovieProvider with ChangeNotifier {
   }
 
   /// Get movie by ID
-  Future<Movie?> getMovieById(int id) async {
+  Future<MovieEntity?> getMovieById(int id) async {
     try {
-      return await _repository.getMovieById(id);
+      return await _getMovieById(id);
     } catch (e) {
       _error = e.toString();
       notifyListeners();
@@ -119,9 +130,9 @@ class MovieProvider with ChangeNotifier {
   }
 
   /// Get movies by IDs
-  Future<List<Movie>> getMoviesByIds(List<int> ids) async {
+  Future<List<MovieEntity>> getMoviesByIds(List<int> ids) async {
     try {
-      return await _repository.getMoviesByIds(ids);
+      return await _getMoviesByIds(ids);
     } catch (e) {
       _error = e.toString();
       notifyListeners();
@@ -144,4 +155,3 @@ class MovieProvider with ChangeNotifier {
     notifyListeners();
   }
 }
-

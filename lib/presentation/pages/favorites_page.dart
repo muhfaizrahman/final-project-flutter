@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/movie_card.dart';
-import '../presentation/providers/favorite_provider.dart';
-import '../presentation/providers/movie_provider.dart';
+import '../providers/favorite_provider.dart';
+import '../providers/movie_provider.dart';
 
 class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
@@ -106,9 +106,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
             itemBuilder: (context, index) {
               final movie = favoriteMovies[index];
               return MovieListItem(
-                movie: movie.copyWith(
-                  isFavorite: favoriteProvider.isFavorite(movie.id),
-                ),
+                movie: movie,
               );
             },
           ),
