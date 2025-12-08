@@ -27,6 +27,7 @@ class MovieApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => InjectionContainer.movieProvider),
         ChangeNotifierProvider(create: (_) => InjectionContainer.favoriteProvider),
+        ChangeNotifierProvider(create: (_) => InjectionContainer.reviewProvider),
       ],
       child: MaterialApp(
         title: 'Catalog Movie App',

@@ -1,3 +1,8 @@
+import 'package:final_project/data/datasources/review_remote_datasource.dart';
+import 'package:final_project/domain/repositories/review_repository.dart';
+import 'package:final_project/domain/usecases/add_review.dart';
+import 'package:final_project/domain/usecases/get_reviews.dart';
+import 'package:final_project/presentation/providers/review_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'data/datasources/favorite_remote_datasource.dart';
 import 'data/datasources/movie_remote_datasource.dart';
@@ -12,6 +17,7 @@ import 'domain/usecases/toggle_favorite.dart';
 import 'domain/usecases/is_favorite.dart';
 import 'presentation/providers/movie_provider.dart';
 import 'presentation/providers/favorite_provider.dart';
+import 'data/repositories/review_repository_impl.dart';
 
 /// Dependency Injection Container
 /// Sets up all dependencies following Clean Architecture
@@ -92,5 +98,20 @@ class InjectionContainer {
       supabaseClient: supabaseClient,
     );
   }
+
+  static ReviewRemoteDataSource get reviewRemoteDataSource =>
+      ReviewRemoteDataSource(supabaseClient);
+
+  static ReviewRepository get reviewRepository =>
+      ReviewRepositoryImpl(reviewRemoteDataSource);
+
+  static AddReview get addReview => AddReview(reviewRepository);
+  static GetReviews get getReviews => GetReviews(reviewRepository);
+
+  static ReviewProvider get reviewProvider => ReviewProvider(
+      addReview: addReview,
+      getReviews: getReviews,
+      supabaseClient: supabaseClient
+  );
 }
 
