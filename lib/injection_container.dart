@@ -18,6 +18,14 @@ import 'domain/usecases/is_favorite.dart';
 import 'presentation/providers/movie_provider.dart';
 import 'presentation/providers/favorite_provider.dart';
 import 'data/repositories/review_repository_impl.dart';
+import 'data/datasources/rating_remote_datasource.dart';
+import 'data/repositories/rating_repository_impl.dart';
+import 'domain/usecases/add_rating.dart';
+import 'domain/usecases/update_rating.dart';
+import 'domain/usecases/delete_rating.dart';
+import 'domain/usecases/get_user_rating.dart';
+import 'domain/usecases/get_movie_ratings.dart';
+import 'presentation/providers/rating_provider.dart';
 
 /// Dependency Injection Container
 /// Sets up all dependencies following Clean Architecture
@@ -109,9 +117,34 @@ class InjectionContainer {
   static GetReviews get getReviews => GetReviews(reviewRepository);
 
   static ReviewProvider get reviewProvider => ReviewProvider(
-      addReview: addReview,
-      getReviews: getReviews,
-      supabaseClient: supabaseClient
+    addReview: addReview,
+    getReviews: getReviews,
+    supabaseClient: supabaseClient,
+  );
+
+  // =====================================================
+  // RATING DEPENDENCIES
+  // =====================================================
+
+  static RatingRemoteDataSource get ratingRemoteDataSource =>
+      RatingRemoteDataSource(supabaseClient);
+
+  static RatingRepositoryImpl get ratingRepository =>
+      RatingRepositoryImpl(ratingRemoteDataSource);
+
+  static AddRating get addRating => AddRating(ratingRepository);
+  static UpdateRating get updateRating => UpdateRating(ratingRepository);
+  static DeleteRating get deleteRating => DeleteRating(ratingRepository);
+  static GetUserRating get getUserRating => GetUserRating(ratingRepository);
+  static GetMovieRatings get getMovieRatings =>
+      GetMovieRatings(ratingRepository);
+
+  static RatingProvider get ratingProvider => RatingProvider(
+    addRating: addRating,
+    updateRating: updateRating,
+    deleteRating: deleteRating,
+    getUserRating: getUserRating,
+    getMovieRatings: getMovieRatings,
+    supabaseClient: supabaseClient,
   );
 }
-

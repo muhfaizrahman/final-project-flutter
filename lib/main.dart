@@ -11,8 +11,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
-      url: 'https://uayepjabsvmjvkjybnbz.supabase.co',
-      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVheWVwamFic3ZtanZranlibmJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4MDI3NDAsImV4cCI6MjA3NzM3ODc0MH0.vELug8EfuvKsTRqzRVUoCW-M0khvUAg5carMJn0gyTA'
+    url: 'https://uayepjabsvmjvkjybnbz.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVheWVwamFic3ZtanZranlibmJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4MDI3NDAsImV4cCI6MjA3NzM3ODc0MH0.vELug8EfuvKsTRqzRVUoCW-M0khvUAg5carMJn0gyTA',
   );
 
   runApp(const MovieApp());
@@ -26,8 +27,15 @@ class MovieApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => InjectionContainer.movieProvider),
-        ChangeNotifierProvider(create: (_) => InjectionContainer.favoriteProvider),
-        ChangeNotifierProvider(create: (_) => InjectionContainer.reviewProvider),
+        ChangeNotifierProvider(
+          create: (_) => InjectionContainer.favoriteProvider,
+        ),
+        ChangeNotifierProvider(
+          create: (_) => InjectionContainer.reviewProvider,
+        ),
+        ChangeNotifierProvider(
+          create: (_) => InjectionContainer.ratingProvider,
+        ),
       ],
       child: MaterialApp(
         title: 'Catalog Movie App',

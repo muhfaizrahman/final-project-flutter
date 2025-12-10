@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../domain/entities/movie_entity.dart';
 import '../providers/favorite_provider.dart';
 import '../providers/review_provider.dart';
+import '../providers/rating_provider.dart';
+import '../widgets/rating_input_widget.dart';
 
 class MovieDetailPage extends StatefulWidget {
   final MovieEntity movie;
@@ -18,47 +20,95 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ReviewProvider>(context, listen: false)
-          .loadReviews(widget.movie.id);
+      Provider.of<ReviewProvider>(
+        context,
+        listen: false,
+      ).loadReviews(widget.movie.id);
+      // Load rating data
+      final ratingProvider = Provider.of<RatingProvider>(
+        context,
+        listen: false,
+      );
+      ratingProvider.loadUserRating(widget.movie.id);
+      ratingProvider.loadMovieRatings(widget.movie.id);
     });
   }
 
+  bool _isUpcomingMovie(MovieEntity movie) {
+    if (movie.releaseDate == null || movie.releaseDate!.isEmpty) {
+      return false; // No release date means not upcoming
+    }
+
+    try {
+      final releaseDate = DateTime.parse(movie.releaseDate!);
+      final now = DateTime.now();
+      return releaseDate.isAfter(now); // Future date = upcoming
+    } catch (e) {
+      return false; // Invalid date format, assume not upcoming
+    }
+  }
+
   void _showAddReviewDialog(BuildContext context) {
+    // Check if user has rated the movie first
+    final ratingProvider = Provider.of<RatingProvider>(context, listen: false);
+    final userRating = ratingProvider.getUserRatingForMovie(widget.movie.id);
+
+    if (userRating == null) {
+      // User must rate first before reviewing
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please rate this movie first before adding a review!"),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
     final commentCtrl = TextEditingController();
-    int selectedRating = 8; // Default rating
+    final selectedRating = userRating.rating; // Use existing rating
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Tulis Review'),
+          title: const Text('Write a Review'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Berapa rating film ini?"),
-              StatefulBuilder(
-                builder: (context, setState) {
-                  return DropdownButton<int>(
-                    value: selectedRating,
-                    items: List.generate(10, (index) => index + 1)
-                        .map((val) => DropdownMenuItem(
-                      value: val,
-                      child: Text("$val / 10"),
-                    ))
-                        .toList(),
-                    onChanged: (val) {
-                      if (val != null) setState(() => selectedRating = val);
-                    },
-                  );
-                },
+              // Show current rating as info (read-only)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.star, color: Colors.amber, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Your rating: $selectedRating/10',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(height: 16),
               TextField(
                 controller: commentCtrl,
                 decoration: const InputDecoration(
-                  hintText: "Tulis komentar kamu...",
+                  hintText: "Share your thoughts about this movie...",
                   border: OutlineInputBorder(),
+                  labelText: 'Your Review',
                 ),
-                maxLines: 3,
+                maxLines: 5,
+                autofocus: true,
               ),
             ],
           ),
@@ -69,18 +119,32 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
             ),
             ElevatedButton(
               onPressed: () async {
-                final provider =
-                Provider.of<ReviewProvider>(context, listen: false);
+                if (commentCtrl.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Please write a comment!"),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                  return;
+                }
+
+                final provider = Provider.of<ReviewProvider>(
+                  context,
+                  listen: false,
+                );
                 try {
                   await provider.addReview(
                     widget.movie.id,
                     selectedRating,
-                    commentCtrl.text,
+                    commentCtrl.text.trim(),
                   );
                   if (context.mounted) {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Review berhasil dikirim!")),
+                      const SnackBar(
+                        content: Text("Review posted successfully!"),
+                      ),
                     );
                   }
                 } catch (e) {
@@ -88,13 +152,114 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                          content: Text("Gagal: $e"),
-                          backgroundColor: Colors.red),
+                        content: Text("Failed: $e"),
+                        backgroundColor: Colors.red,
+                      ),
                     );
                   }
                 }
               },
-              child: const Text('Kirim'),
+              child: const Text('Post Review'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showRatingDialog(BuildContext context) {
+    final ratingProvider = Provider.of<RatingProvider>(context, listen: false);
+    final currentRating = ratingProvider
+        .getUserRatingForMovie(widget.movie.id)
+        ?.rating;
+    int? selectedRating = currentRating;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            currentRating == null ? 'Rate this Movie' : 'Update Your Rating',
+          ),
+          content: RatingInputWidget(
+            initialRating: currentRating,
+            onRatingSelected: (rating) {
+              selectedRating = rating;
+            },
+          ),
+          actions: [
+            if (currentRating != null)
+              TextButton(
+                onPressed: () async {
+                  try {
+                    await ratingProvider.removeRating(widget.movie.id);
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Rating removed!")),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("Error: $e"),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                },
+                child: const Text(
+                  'Remove',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (selectedRating == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Please select a rating"),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                  return;
+                }
+                try {
+                  await ratingProvider.submitRating(
+                    widget.movie.id,
+                    selectedRating!,
+                  );
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          currentRating == null
+                              ? "Rating submitted!"
+                              : "Rating updated!",
+                        ),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("Error: $e"),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text('Submit'),
             ),
           ],
         );
@@ -132,8 +297,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                     );
                   }
                 },
-                tooltip:
-                isFavorite ? 'Remove from Favorites' : 'Add to Favorites',
+                tooltip: isFavorite
+                    ? 'Remove from Favorites'
+                    : 'Add to Favorites',
               ),
             ],
           ),
@@ -182,31 +348,178 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                   if (widget.movie.releaseDate != null) ...[
                     Text(
                       'Release Date: ${widget.movie.releaseDate}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                     const SizedBox(height: 16),
                   ],
 
                   const Text(
                     'Overview',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
 
                   Text(
                     widget.movie.overview,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      height: 1.5,
-                    ),
+                    style: const TextStyle(fontSize: 16, height: 1.5),
                     textAlign: TextAlign.justify,
                   ),
+
+                  const SizedBox(height: 32),
+                  const Divider(),
+
+                  // ========== RATING SECTION ==========
+                  // Only show for released movies (hide for upcoming)
+                  if (!_isUpcomingMovie(widget.movie))
+                    Consumer<RatingProvider>(
+                      builder: (context, ratingProvider, child) {
+                        final userRating = ratingProvider.getUserRatingForMovie(
+                          widget.movie.id,
+                        );
+                        final avgRating = ratingProvider.averageRating;
+                        final totalRatings = ratingProvider.movieRatings.length;
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Your Rating',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                if (avgRating != null)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.amber.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.star,
+                                          color: Colors.amber,
+                                          size: 18,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${avgRating.toStringAsFixed(1)}/10',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          ' ($totalRatings)',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+
+                            if (userRating != null)
+                              Card(
+                                color: Colors.blue.shade50,
+                                child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundColor: Colors.amber,
+                                    child: Text(
+                                      userRating.rating.toString(),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  title: Row(
+                                    children: [
+                                      Text(
+                                        'You rated: ${userRating.rating}/10',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      if (userRating.isWatched)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.green.shade100,
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            border: Border.all(
+                                              color: Colors.green.shade300,
+                                              width: 1,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.visibility,
+                                                size: 14,
+                                                color: Colors.green.shade700,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                'Watched',
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.green.shade700,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  subtitle: Text(
+                                    'Rated on ${userRating.createdAt.day}/${userRating.createdAt.month}/${userRating.createdAt.year}',
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () => _showRatingDialog(context),
+                                    tooltip: 'Update rating',
+                                  ),
+                                ),
+                              )
+                            else
+                              Center(
+                                child: ElevatedButton.icon(
+                                  onPressed: () => _showRatingDialog(context),
+                                  icon: const Icon(Icons.star_rate),
+                                  label: const Text('Rate this Movie'),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 12,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
 
                   const SizedBox(height: 32),
                   const Divider(),
@@ -233,15 +546,18 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                     builder: (context, reviewProvider, child) {
                       if (reviewProvider.isLoading) {
                         return const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: CircularProgressIndicator(),
-                            ));
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
                       }
 
                       if (reviewProvider.error != null) {
-                        return Text("Error: ${reviewProvider.error}",
-                            style: const TextStyle(color: Colors.red));
+                        return Text(
+                          "Error: ${reviewProvider.error}",
+                          style: const TextStyle(color: Colors.red),
+                        );
                       }
 
                       if (reviewProvider.reviews.isEmpty) {
@@ -274,7 +590,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                               title: Text(
                                 "User ${review.userId.substring(0, 4)}...",
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 14),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
                               ),
                               subtitle: Padding(
                                 padding: const EdgeInsets.only(top: 4),
@@ -283,7 +601,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                               trailing: Text(
                                 "${review.createdAt.day}/${review.createdAt.month}/${review.createdAt.year}",
                                 style: const TextStyle(
-                                    fontSize: 12, color: Colors.grey),
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
                               ),
                             ),
                           );
