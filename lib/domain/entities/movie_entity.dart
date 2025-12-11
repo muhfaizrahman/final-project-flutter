@@ -1,4 +1,3 @@
-/// Domain Entity - Pure business object, no dependencies on frameworks
 class MovieEntity {
   final int id;
   final String title;
@@ -7,6 +6,7 @@ class MovieEntity {
   final double? ratingAverage;
   final String? releaseDate;
   final List<String>? genres;
+  final String? category;
 
   const MovieEntity({
     required this.id,
@@ -16,6 +16,7 @@ class MovieEntity {
     this.ratingAverage,
     this.releaseDate,
     this.genres,
+    this.category,
   });
 
   MovieEntity copyWith({
@@ -26,6 +27,7 @@ class MovieEntity {
     double? ratingAverage,
     String? releaseDate,
     List<String>? genres,
+    String? category,
   }) {
     return MovieEntity(
       id: id ?? this.id,
@@ -35,6 +37,7 @@ class MovieEntity {
       ratingAverage: ratingAverage ?? this.ratingAverage,
       releaseDate: releaseDate ?? this.releaseDate,
       genres: genres ?? this.genres,
+      category: category ?? this.category,
     );
   }
 
@@ -48,18 +51,19 @@ class MovieEntity {
         other.posterPath == posterPath &&
         other.ratingAverage == ratingAverage &&
         other.releaseDate == releaseDate &&
-        other.genres == genres;
+        other.genres == genres &&
+        other.category == category;
   }
 
   @override
   int get hashCode {
     return id.hashCode ^
-        title.hashCode ^
-        overview.hashCode ^
-        posterPath.hashCode ^
-        ratingAverage.hashCode ^
-        releaseDate.hashCode ^
-        genres.hashCode;
+    title.hashCode ^
+    overview.hashCode ^
+    posterPath.hashCode ^
+    ratingAverage.hashCode ^
+    releaseDate.hashCode ^
+    genres.hashCode ^
+    category.hashCode;
   }
 }
-

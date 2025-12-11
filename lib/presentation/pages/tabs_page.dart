@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+
 import 'now_showing_page.dart';
 import 'upcoming_page.dart';
 import 'top_rated_page.dart';
 import 'favorites_page.dart';
 import 'edit_profile_page.dart';
+import 'watchlist_page.dart';
+
 import '../providers/favorite_provider.dart';
 import '../providers/movie_provider.dart';
+import '../providers/watchlist_provider.dart';
 
 class TabsPage extends StatefulWidget {
   const TabsPage({super.key});
@@ -24,6 +29,7 @@ class _TabsPageState extends State<TabsPage> {
     UpcomingPage(),
     TopRatedPage(),
     FavoritesPage(),
+    WatchlistPage(),
     EditProfilePage(),
   ];
 
@@ -32,19 +38,21 @@ class _TabsPageState extends State<TabsPage> {
     'Upcoming Movies',
     'Top Rated',
     'Favorites',
+    'Watchlist',
     'Edit Profile'
   ];
 
   @override
   void initState() {
     super.initState();
-    // Initialize favorites and movies when user logs in
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final favoriteProvider = Provider.of<FavoriteProvider>(context, listen: false);
       final movieProvider = Provider.of<MovieProvider>(context, listen: false);
-      
+      final watchlistProvider = Provider.of<WatchlistProvider>(context, listen: false);
+
       favoriteProvider.initialize();
       movieProvider.initialize();
+      watchlistProvider.loadWatchlist();
     });
   }
 
@@ -52,13 +60,14 @@ class _TabsPageState extends State<TabsPage> {
 
   Future<void> _signOut() async {
     try {
-      // Clear favorites and movies before signing out
       final favoriteProvider = Provider.of<FavoriteProvider>(context, listen: false);
       final movieProvider = Provider.of<MovieProvider>(context, listen: false);
-      
+      final watchlistProvider = Provider.of<WatchlistProvider>(context, listen: false); // Clear Watchlist
+
       favoriteProvider.clear();
       movieProvider.clear();
-      
+      watchlistProvider.watchlist = [];
+
       await Supabase.instance.client.auth.signOut();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -118,6 +127,7 @@ class _TabsPageState extends State<TabsPage> {
           BottomNavigationBarItem(icon: Icon(Icons.update), label: 'Upcoming Movies'),
           BottomNavigationBarItem(icon: Icon(Icons.star), label: 'Top Rated'),
           BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorites'),
+          BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: 'Watchlist'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Edit Profile'),
         ],
       ),

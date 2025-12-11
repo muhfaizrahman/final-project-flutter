@@ -1,23 +1,31 @@
-import 'package:final_project/data/datasources/review_remote_datasource.dart';
-import 'package:final_project/domain/repositories/review_repository.dart';
-import 'package:final_project/domain/usecases/add_review.dart';
-import 'package:final_project/domain/usecases/get_reviews.dart';
-import 'package:final_project/presentation/providers/review_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'data/datasources/favorite_remote_datasource.dart';
+
+// MOVIE
 import 'data/datasources/movie_remote_datasource.dart';
-import 'data/repositories/favorite_repository.dart';
 import 'data/repositories/movie_repository.dart';
 import 'domain/usecases/get_all_movies.dart';
 import 'domain/usecases/get_movies_by_category.dart';
 import 'domain/usecases/get_movie_by_id.dart';
 import 'domain/usecases/get_movies_by_ids.dart';
+import 'presentation/providers/movie_provider.dart';
+
+// FAVORITE
+import 'data/datasources/favorite_remote_datasource.dart';
+import 'data/repositories/favorite_repository.dart';
 import 'domain/usecases/get_favorites.dart';
 import 'domain/usecases/toggle_favorite.dart';
 import 'domain/usecases/is_favorite.dart';
-import 'presentation/providers/movie_provider.dart';
 import 'presentation/providers/favorite_provider.dart';
+
+// REVIEW
+import 'data/datasources/review_remote_datasource.dart';
 import 'data/repositories/review_repository_impl.dart';
+import 'domain/repositories/review_repository.dart';
+import 'domain/usecases/add_review.dart';
+import 'domain/usecases/get_reviews.dart';
+import 'presentation/providers/review_provider.dart';
+
+// RATING
 import 'data/datasources/rating_remote_datasource.dart';
 import 'data/repositories/rating_repository_impl.dart';
 import 'domain/usecases/add_rating.dart';
@@ -27,85 +35,81 @@ import 'domain/usecases/get_user_rating.dart';
 import 'domain/usecases/get_movie_ratings.dart';
 import 'presentation/providers/rating_provider.dart';
 
-/// Dependency Injection Container
-/// Sets up all dependencies following Clean Architecture
+// =====================================================
+// 👇 WATCHLIST (BARU)
+// =====================================================
+import 'data/datasources/watchlist_remote_datasource.dart';
+import 'data/repositories/watchlist_repository_impl.dart';
+import 'domain/repositories/watchlist_repository.dart';
+import 'domain/usecases/get_watchlist.dart';
+import 'domain/usecases/is_in_watchlist.dart';
+import 'domain/usecases/toggle_watchlist.dart';
+import 'presentation/providers/watchlist_provider.dart';
+// =====================================================
+
+
 class InjectionContainer {
   static SupabaseClient get supabaseClient => Supabase.instance.client;
 
-  // Data Sources
-  static MovieRemoteDataSource get movieRemoteDataSource {
-    return MovieRemoteDataSource(supabaseClient);
-  }
+  // =====================================================
+  // MOVIE
+  // =====================================================
 
-  static FavoriteRemoteDataSource get favoriteRemoteDataSource {
-    return FavoriteRemoteDataSource(supabaseClient);
-  }
+  static MovieRemoteDataSource get movieRemoteDataSource =>
+      MovieRemoteDataSource(supabaseClient);
 
-  // Repositories
-  static MovieRepository get movieRepository {
-    return MovieRepository(movieRemoteDataSource);
-  }
+  static MovieRepository get movieRepository =>
+      MovieRepository(movieRemoteDataSource);
 
-  static FavoriteRepository get favoriteRepository {
-    return FavoriteRepository(favoriteRemoteDataSource);
-  }
+  static GetAllMovies get getAllMovies => GetAllMovies(movieRepository);
+  static GetMoviesByCategory get getMoviesByCategory =>
+      GetMoviesByCategory(movieRepository);
+  static GetMovieById get getMovieById => GetMovieById(movieRepository);
+  static GetMoviesByIds get getMoviesByIds =>
+      GetMoviesByIds(movieRepository);
 
-  // Use Cases
-  static GetAllMovies get getAllMovies {
-    return GetAllMovies(movieRepository);
-  }
+  static MovieProvider get movieProvider => MovieProvider(
+    getAllMovies: getAllMovies,
+    getMoviesByCategory: getMoviesByCategory,
+    getMovieById: getMovieById,
+    getMoviesByIds: getMoviesByIds,
+  );
 
-  static GetMoviesByCategory get getMoviesByCategory {
-    return GetMoviesByCategory(movieRepository);
-  }
+  // =====================================================
+  // FAVORITE
+  // =====================================================
 
-  static GetMovieById get getMovieById {
-    return GetMovieById(movieRepository);
-  }
+  static FavoriteRemoteDataSource get favoriteRemoteDataSource =>
+      FavoriteRemoteDataSource(supabaseClient);
 
-  static GetMoviesByIds get getMoviesByIds {
-    return GetMoviesByIds(movieRepository);
-  }
+  static FavoriteRepository get favoriteRepository =>
+      FavoriteRepository(favoriteRemoteDataSource);
 
-  static GetFavorites get getFavorites {
-    return GetFavorites(
-      favoriteRepository,
-      () => supabaseClient.auth.currentUser?.id ?? '',
-    );
-  }
+  static GetFavorites get getFavorites => GetFavorites(
+    favoriteRepository,
+        () => supabaseClient.auth.currentUser?.id ?? '',
+  );
 
-  static ToggleFavorite get toggleFavorite {
-    return ToggleFavorite(
-      favoriteRepository,
-      () => supabaseClient.auth.currentUser?.id ?? '',
-    );
-  }
+  static ToggleFavorite get toggleFavorite => ToggleFavorite(
+    favoriteRepository,
+        () => supabaseClient.auth.currentUser?.id ?? '',
+  );
 
-  static IsFavorite get isFavorite {
-    return IsFavorite(
-      favoriteRepository,
-      () => supabaseClient.auth.currentUser?.id ?? '',
-    );
-  }
+  static IsFavorite get isFavorite => IsFavorite(
+    favoriteRepository,
+        () => supabaseClient.auth.currentUser?.id ?? '',
+  );
 
-  // Providers
-  static MovieProvider get movieProvider {
-    return MovieProvider(
-      getAllMovies: getAllMovies,
-      getMoviesByCategory: getMoviesByCategory,
-      getMovieById: getMovieById,
-      getMoviesByIds: getMoviesByIds,
-    );
-  }
+  static FavoriteProvider get favoriteProvider => FavoriteProvider(
+    getFavorites: getFavorites,
+    toggleFavorite: toggleFavorite,
+    isFavorite: isFavorite,
+    supabaseClient: supabaseClient,
+  );
 
-  static FavoriteProvider get favoriteProvider {
-    return FavoriteProvider(
-      getFavorites: getFavorites,
-      toggleFavorite: toggleFavorite,
-      isFavorite: isFavorite,
-      supabaseClient: supabaseClient,
-    );
-  }
+  // =====================================================
+  // REVIEW
+  // =====================================================
 
   static ReviewRemoteDataSource get reviewRemoteDataSource =>
       ReviewRemoteDataSource(supabaseClient);
@@ -123,7 +127,7 @@ class InjectionContainer {
   );
 
   // =====================================================
-  // RATING DEPENDENCIES
+  // RATING
   // =====================================================
 
   static RatingRemoteDataSource get ratingRemoteDataSource =>
@@ -147,4 +151,40 @@ class InjectionContainer {
     getMovieRatings: getMovieRatings,
     supabaseClient: supabaseClient,
   );
+
+  // =====================================================
+  // 👇 WATCHLIST (PENAMBAHAN BARU)
+  // =====================================================
+
+  // Asumsi: WatchlistRemoteDataSource, WatchlistRepositoryImpl, dan WatchlistRepository
+  // ada di jalur yang sama dengan entitas Anda yang lain.
+
+  static WatchlistRemoteDataSource get watchlistRemoteDataSource =>
+      WatchlistRemoteDataSource(supabaseClient);
+
+  static WatchlistRepository get watchlistRepository =>
+      WatchlistRepositoryImpl(watchlistRemoteDataSource);
+
+  static GetWatchlist get getWatchlist => GetWatchlist(
+    watchlistRepository,
+        () => supabaseClient.auth.currentUser?.id ?? '',
+  );
+
+  static ToggleWatchlist get toggleWatchlist => ToggleWatchlist(
+    watchlistRepository,
+        () => supabaseClient.auth.currentUser?.id ?? '',
+  );
+
+  static IsInWatchlist get isInWatchlist => IsInWatchlist(
+    watchlistRepository,
+        () => supabaseClient.auth.currentUser?.id ?? '',
+  );
+
+  static WatchlistProvider get watchlistProvider => WatchlistProvider(
+    getWatchlistUC: getWatchlist,
+    isInWatchlistUC: isInWatchlist,
+    toggleWatchlistUC: toggleWatchlist,
+    supabaseClient: supabaseClient,
+  );
+// =====================================================
 }
